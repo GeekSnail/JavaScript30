@@ -47,7 +47,7 @@
         position: relative;
         width: 100%;
         height: 100%;
-        transform: translateY(
+        /*transform: translateY(
           -3px
         ); /* account for the height of the clock hands */
       }
@@ -67,20 +67,108 @@
 
       .hand {
         width: 50%;
-        height: 6px;
+        /* height: 6px; */
         background: black;
         position: absolute;
         top: 50%;
+        right: 50%;
         /* 设置旋转轴 */
         transform-origin: right;
+        transform: translateY(-50%); /* 修正指针垂直位置 */
+        transition-timing-function: cubic-bezier(0.9, 0.54, 0.26, 1.68);
+        /* transition: all 0.5s; */
+        box-shadow: 0 0 0 0.1px #fff, 0 0 0 1px rgba(0, 0, 0, 0.1),
+          0 0 8px rgba(0, 0, 0, 0.4), 2px 5px 1px rgba(0, 0, 0, 0.5);
+        background: #fff;
       }
       .hour-hand {
-        transition: all 0.5s;
+        width: 40%;
+        height: 10px;
+        border-radius: 0.5em 0 0 0.5em;
+        transition: all 1s;
+      }
+      .min-hand {
+        width: 45%;
+        height: 5px;
+        transition: all 0.1s;
+      }
+      .second-hand {
+        height: 2px;
+        border-radius: 100% 0 0 100%;
+        transition: all 0.05s;
+        background: red;
       }
     </style>
 
     <script>
-      const date = new Date();
+      const hourHand = document.querySelector(".hour-hand");
+      const minHand = document.querySelector(".min-hand");
+      const secondHand = document.querySelector(".second-hand");
+      let secondDeg = 0,
+        minDeg = 0,
+        hourDeg = 0;
+      let translateY = "translateY(-50%)"; // 修正指针垂直位置
+
+      const setDate = () => {
+        // 秒针deg 1圈60s ~ 360deg => 1s ~ 6deg
+        secondDeg += (1 / 60) * 360;
+        // 分针deg 1圈60m ~ 360deg => 1m ~ 6deg
+        minDeg += (1 / 60) * 6;
+        // 时针deg 1圈12h ~ 360deg => 1h ~ 30deg
+        hourDeg += (1 / 3600) * 30;
+        secondHand.style.transform = `${translateY} rotate(${secondDeg +
+          "deg"})`;
+        minHand.style.transform = `${translateY} rotate(${minDeg + "deg"})`;
+        hourHand.style.transform = `${translateY} rotate(${hourDeg + "deg"})`;
+        let matrix = new WebKitCSSMatrix(
+          window.getComputedStyle(secondHand)["transform"]
+        )
+          // .rotate(6)
+          .toString();
+        // secondHand.style.transform = matrix;
+        let values = matrix
+          .split("(")[1]
+          .split(")")[0]
+          .split(",");
+        let a = values[0],
+          b = values[1],
+          c = values[2],
+          d = values[3];
+        let scale = Math.sqrt(a * a + b * b);
+        let sin = b / scale;
+        let angle = Math.round(Math.asin(sin) * (180 / Math.PI)); //Math.atan2(b, a)
+        console.log("Rotate: " + angle + "deg");
+
+        // minHand.style.transform = new WebKitCSSMatrix(
+        //   window.getComputedStyle(minHand)["transform"]
+        // )
+        //   .rotate((1 / 60) * 6)
+        //   .toString();
+        // hourHand.style.transform = new WebKitCSSMatrix(
+        //   window.getComputedStyle(hourHand)["transform"]
+        // )
+        //   .rotate((1 / 3600) * 30)
+        //   .toString();
+      };
+      const initDate = () => {
+        let date = new Date();
+        let hour = date.getHours();
+        let min = date.getMinutes();
+        let second = date.getSeconds();
+        // 秒针deg 1圈60s ~ 360deg => 1s ~ 6deg
+        secondDeg = 90 + (second / 60) * 360;
+        // 分针deg 1圈60m ~ 360deg => 1m ~ 6deg
+        minDeg = 90 + min * 6 + (second / 60) * 6;
+        // 时针deg 1圈12h ~ 360deg => 1h ~ 30deg
+        hourDeg =
+          90 + (hour - 12) * 30 + (min / 60) * 30 + (second / 3600) * 30;
+        secondHand.style.transform = `${translateY} rotate(${secondDeg +
+          "deg"})`;
+        minHand.style.transform = `${translateY} rotate(${minDeg + "deg"})`;
+        hourHand.style.transform = `${translateY} rotate(${hourDeg + "deg"})`;
+      };
+      initDate();
+      setInterval(setDate, 1000);
     </script>
   </body>
 </html>
