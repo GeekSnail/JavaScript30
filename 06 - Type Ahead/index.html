@@ -37,16 +37,16 @@
           // p.detail_text.includes(this.value) ||
           // p.detail_author.includes(this.value)
         );
-
+        const replacer = [regex, `<span class="hl">${this.value}</span>`];
         ul.innerHTML = filtered
           .map(
             p =>
               "<li><span>" +
-              p.detail_text +
+              p.detail_text.replace(...replacer) +
               "</span><span>" +
-              p.title +
+              p.title.replace(...replacer) +
               " - " +
-              p.detail_author +
+              p.detail_author[0].replace(...replacer) +
               "</span></li>"
           )
           .join("");
