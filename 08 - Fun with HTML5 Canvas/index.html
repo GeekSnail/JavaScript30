@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>HTML5 Canvas</title>
+  </head>
+  <style>
+    html,
+    body {
+      margin: 0;
+    }
+    html,
+    body,
+    canvas {
+      height: 100%;
+      width: 100%;
+    }
+  </style>
+  <body>
+    <canvas id="draw" width="1080" height="800"></canvas>
+    <script>
+      const canvas = document.querySelector("canvas#draw");
+      const ctx = canvas.getContext("2d");
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      ctx.scale(1, 1);
+      //线条样式
+      ctx.strokeStyle = "#bada55";
+      ctx.lineCap = "round"; //设置或返回 线条的结束端点样式 笔触的形状
+      ctx.lineJoin = "round"; //设置或返回 两条线相交时，所创建的拐角类型 线条相较的方式
+      ctx.lineWidth = 100;
+      // 定义绘图的状态
+      let isDrawing = false;
+      // 定义上一次移动的最后位置
+      let [lastX, lastY] = [0, 0];
+      // 定于色调 0-360
+      let hue = 0;
+      // 规定线条由细到粗，再回归到细，临界点判断参数
+      let direction = true;
+
+      // 绘制
+      function draw(e) {
+        if (!isDrawing) return;
+        // 顏色变化
+        ctx.strokeStyle = `hsl(${hue}, 90%, 50%)`;
+        hue++;
+        hue >= 360 && (hue = 0);
+        // 粗细变化
+        if (ctx.lineWidth >= 100 || ctx.lineWidth <= 1) {
+          direction = !direction;
+        }
+        direction ? ctx.lineWidth++ : ctx.lineWidth--;
+
+        let [x, y] =
+          e.type == "mousemove"
+            ? [e.offsetX, e.offsetY]
+            : [e.changedTouches[0].clientX, e.changedTouches[0].clientY];
+        ctx.beginPath(); //开始一条路径
+        ctx.moveTo(lastX, lastY); //路径移到起点
+        ctx.lineTo(x, y); //添加一个新点
+        ctx.stroke(); //绘制路径
+        [lastX, lastY] = [x, y]; //绘制完更新最后位置
+      }
+
+      // 定义鼠标监听事件
+      canvas.addEventListener("mousedown", e => {
+        isDrawing = true; // 开始绘图
+        [lastX, lastY] = [e.offsetX, e.offsetY];
+      });
+      canvas.addEventListener("mousemove", draw); // 绘制中
+      canvas.addEventListener("mouseup", e => (isDrawing = false)); // 释放鼠标 - 完成绘制
+      canvas.addEventListener("mouseout", e => (isDrawing = false));
+      // 监听触屏
+      canvas.addEventListener("touchstart", e => {
+        isDrawing = true;
+        [lastX, lastY] = [
+          e.changedTouches[0].clientX,
+          e.changedTouches[0].clientY
+        ];
+      });
+      canvas.addEventListener("touchmove", draw);
+      canvas.addEventListener("touchend", e => (isDrawing = false));
+      canvas.addEventListener("touchcancel", e => (isDrawing = false));
+    </script>
+  </body>
+</html>
