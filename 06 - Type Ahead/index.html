@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Type Ahead 👀</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <form class="search-form">
+      <input type="text" class="search" placeholder="诗句 诗名 诗人" />
+      <ul class="suggestions">
+        <li>输入词句，找一首诗</li>
+        <li></li>
+      </ul>
+    </form>
+    <script>
+      // const endpoint = "https://gist.githubusercontent.com/Miserlou/c5cd8364bf9b2420bb29/raw/2bf258763cdddd704f8ffd3ea9a3e81d25e2c6f6/cities.json";
+      const endpoint =
+        "https://gist.githubusercontent.com/soyaine/81399bb2b24ca1bb5313e1985533c640/raw/bdf7df2cbcf70706c4a5e51a7dfb8c933ed78878/TangPoetry.json";
+      const poetrys = [];
+      const input = document.querySelector("input.search");
+      const ul = document.querySelector("ul.suggestions");
+
+      fetch(endpoint)
+        .then(r => r.json())
+        .then(r => poetrys.push(...r))
+        .catch(e => console.table(e));
+
+      function handleInputChange(e) {
+        const regex = new RegExp(this.value, "gi");
+        const filtered = poetrys.filter(
+          p =>
+            p.title.match(regex) ||
+            p.detail_text.match(regex) ||
+            p.detail_author.join("").match(regex)
+          // p.title.includes(this.value) ||
+          // p.detail_text.includes(this.value) ||
+          // p.detail_author.includes(this.value)
+        );
+
+        ul.innerHTML = filtered
+          .map(
+            p =>
+              "<li><span>" +
+              p.detail_text +
+              "</span><span>" +
+              p.title +
+              " - " +
+              p.detail_author +
+              "</span></li>"
+          )
+          .join("");
+      }
+      input.addEventListener("change", handleInputChange);
+      input.addEventListener("keyup", handleInputChange); // 松开键盘
+    </script>
+  </body>
+</html>
