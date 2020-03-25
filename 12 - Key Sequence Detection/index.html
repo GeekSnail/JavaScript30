@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Key Detection</title>
+    <script
+      type="text/javascript"
+      src="https://www.cornify.com/js/cornify.js"
+    ></script>
+  </head>
+  <body>
+    <script>
+      //輸入一段密碼之後會出現特定的畫面，稱為Key Sequence
+      //要实现的效果是，当在此页面完整输入了“暗号”（一串事先定义好的字符串）时，生成新的 Cornify 特效。
+      //利用一個陣列存鍵入的內容，另一個用來做儲存的內容。當兩個陣列吻合後即可產生特殊內容。
+      const pressed = [],
+        secretCode = "hello";
+      window.addEventListener("keyup", e => {
+        // 数组呈队列性质，输入一个字符时，会挤出原有的的字符，保证其最大长度始终为 secretCode 的长度
+        pressed.push(e.key); // 新长度最大secretCode.length+1
+        // ['a','b','c','d'] //按d
+        // ['a','b','c','d','e'] //按e
+        // ['a','b','c','d','h'] //按h
+        // ['a','b','c','h','e'] //按e
+        // ['a','b','h','e','l'] //按l
+        // ['a','h','e','l','l'] //按l
+        // ['h','e','l','l','o'] //按o
+        pressed.splice(
+          -secretCode.length - 1,
+          pressed.length - secretCode.length
+        );
+        if (pressed.join("") === secretCode) {
+          console.log("bingo ~");
+          cornify_add();
+        }
+        console.log(pressed);
+      });
+    </script>
+  </body>
+</html>
