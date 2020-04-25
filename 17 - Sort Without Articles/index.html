@@ -57,14 +57,15 @@
         "Oh, Sleeper",
         "A Skylit Drive",
         "Anywhere But Here",
-        "An Old Dog"
+        "An Old Dog",
       ];
-      //数组的去前缀排序
+      //数组的去前缀（冠词）排序
       //利用正規表達式排序，為了避免修改数组內容，僅在比較時排序。不改變数组本身
-      const delPrefix = str => str.replace(/^(The|A|An)\s{1}/, "");
+      //Array.prototype.sort()函数只是返回了一个指向原数组的引用
+      const delPrefix = (str) => str.replace(/^(The|A|An)\s{1}/, "");
       bands.sort((a, b) => (delPrefix(a) > delPrefix(b) ? 1 : -1));
       document.querySelector("#bands").innerHTML = bands
-        .map(e => `<li>${e}</li>`)
+        .map((e) => `<li>${e}</li>`)
         .join("");
     </script>
   </body>
