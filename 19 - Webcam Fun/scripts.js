@@ -14,34 +14,161 @@ const video = document.querySelector(".player");
 const canvas = document.querySelector(".photo");
 const ctx = canvas.getContext("2d");
 const strip = document.querySelector(".strip");
-const snap = document.querySelector(".snap");
-askWebCam();
+const snap = document.querySelector(".snap"); //audio
+const img = document.querySelector("#myimg");
+const slider = document.querySelector(".rgb");
+
+const filter = {
+  rmin: 0,
+  rmax: 255,
+  gmin: 0,
+  gmax: 255,
+  bmin: 0,
+  bmax: 255
+};
+
+getVideo();
+video.addEventListener("canplay", paintToCanvas);
+function getVideo() {
+  navigator.mediaDevices
+    .getUserMedia({ video: true, audio: false })
+    .then(mediaStream => {
+      console.log(mediaStream);
+      window.mediaStream = mediaStream;
+      video.srcObject = mediaStream;
+      video.onloadedmetadata = e => video.play();
+    })
+    .catch(console.error);
+}
+
+function paintToCanvas() {
+  const width = video.videoWidth;
+  const height = video.videoHeight;
+  canvas.width = width;
+  canvas.height = height;
+  return setInterval(() => {
+    ctx.drawImage(video, 0, 0, width, height);
+    let pixels = ctx.getImageData(0, 0, width, height);
+    // pixels = rgbSplit(pixels);
+
+    const pos = { 0: "r", 1: "g", 2: "b" };
+    console.log(filter, filter[0]);
+    for (let i = 0; i < 3; i++) {
+      for (let j = i; j < pixels.data.length; j += 4) {
+        if (pixels.data[j] < filter[pos[i] + "min"]) {
+          pixels.data[j] = filter[pos[i] + "min"];
+        }
+        if (pixels.data[j] > filter[pos[i] + "max"]) {
+          pixels.data[j] = filter[pos[i] + "max"];
+        }
+      }
+    }
+    // put them back
+    ctx.putImageData(pixels, 0, 0);
+  });
+}
+
+// function rgbSplit(pixels) {
+//   for (let i = 0; i < pixels.data.length; i += 4) {
+//     pixels.data[i - 150] = pixels.data[i + 0]; // RED
+//     pixels.data[i + 500] = pixels.data[i + 1]; // GREEN
+//     pixels.data[i - 550] = pixels.data[i + 2];
+//   }
+//   return pixels;
+// }
+
+function takePhoto() {
+  // played the sound
+  snap.currentTime = 0;
+  // snap.play();
+
+  originData = ctx.getImageData(0, 0, 300, 200);
+  // take the data out of the canvas
+  const data = canvas.toDataURL("image/jpg");
+  const link = document.createElement("a");
+  link.href = data;
+  link.setAttribute("download", "handsome");
+  link.innerHTML = `<img src="${data}" />`;
+  strip.insertBefore(link, strip.firstChild);
+}
+
+// openWebCam();
 // 1.申请调用 WebCam
-function askWebCam() {
-  navigator.getUserMedia =
-    navigator.getUserMedia ||
-    navigator.webkitGetUserMedia ||
-    navigator.mozGetUserMedia;
-  if (navigator.getUserMedia) {
-    navigator.getUserMedia(
-      {
-        audio: false,
-        video: {
-          width: 300,
-          height: 200,
-        },
-      },
-      (stream) => {
-        video.srcObject = stream;
-        video.onloadedmetadata = (e) => video.play();
-      },
-      (err) => console.log(err)
-    );
-  } else console.log("this navigator doesn't support webcam!");
+function openWebCam() {
+  navigator.getUserMedia(
+    {
+      audio: false,
+      video: {
+        width: 300,
+        height: 200
+      }
+    },
+    stream => {
+      window.stream = stream;
+      video.srcObject = stream;
+      video.onloadedmetadata = e => video.play();
+    },
+    err => console.log(err)
+  );
 }
 // 2.截图 takePhoto(), 将原始数据保留一份
-function takePhoto() {
-  ctx.drawImage(video, 0, 0, 300, 200);
-  origindata = ctx.getImageData(0, 0, 300, 200);
-}
+// function takePhoto() {
+//   ctx.drawImage(video, 0, 0, 300, 200);
+//   originData = ctx.getImageData(0, 0, 300, 200);
+// }
 // 3.色彩过滤
+slider.onchange = e => {
+  //先将canvas恢复至原始截图
+  // ctx.putImageData(originData, 0, 0);
+  const target = e.target;
+  console.log(target.name);
+  //startPos表示操作像素点数据时的起点，从canvas获取到的像素数据每四个值表示一个像素点
+  //例如滑块为红色，则只需要改变像素数组中第0,4,8......个元素的值。
+  // const startPos = { r: 0, g: 1, b: 2 }[target.name[0]];
+  //filterMin和filterMax表示相应的滤色范围上下限，若修改了红色滤色范围则取红色范围值。
+  //若修改蓝色的滤色范围，则取蓝色。
+  // let { min: filterMin, max: filterMax } = checkFilter(
+  //   target.name,
+  //   target.value
+  // );
+  filter[target.name] = Number(target.value);
+  // let imgData = ctx.getImageData(0, 0, 300, 200);
+  // 色彩过滤
+  // for (let i = startPos, len = imgData.data.length; i < len; i += 4) {
+  //   if (imgData.data[i] < filterMin) imgData.data[i] = filterMin;
+  //   else if (imgData.data[i] > filterMax) imgData.data[i] = filterMax;
+  // }
+  // const pos = { 0: "r", 1: "g", 2: "b" };
+  // for (let i = 0; i < 3; i++) {
+  //   for (let j = i; j < imgData.data.length; j += 4) {
+  //     if (imgData[j] < filter[pos[i] + "min"]) {
+  //       imgData.data[i] = filter[pos[i] + "min"];
+  //     }
+  //     if (imgData[j] > filter[pos[i] + "max"]) {
+  //       imgData.data[i] = filter[pos[i] + "max"];
+  //     }
+  //   }
+  // }
+  // ctx.putImageData(imgData, 0, 0);
+};
+/**
+ * input[type=range] 上下值
+ * @param {*} name: rmin|rmax | gmin|gmax | bmin|bmax
+ * @param {*} value
+ */
+function checkFilter(name, value) {
+  let _antiname = {
+    rmin: "rmax",
+    rmax: "rmin",
+    gmin: "gmax",
+    gmax: "gmin",
+    bmin: "bmax",
+    bmax: "bmin"
+  }[name];
+  filter[name] = value;
+  //当下限值超过上限时，将两者对调
+  return {
+    min: Math.min(filter[name], filter[_antiname]),
+    max: Math.max(filter[name], filter[_antiname])
+  };
+}
