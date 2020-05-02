@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Speech Synthesis</title>
+    <link
+      href="https://fonts.googleapis.com/css?family=Pacifico"
+      rel="stylesheet"
+      type="text/css"
+    />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="voiceinator">
+      <h1>The Voiceinator 5000</h1>
+
+      <select name="voice" id="voices">
+        <option value="">Select A Voice</option>
+      </select>
+
+      <label for="rate">Rate:</label>
+      <input name="rate" type="range" min="0" max="3" value="1" step="0.1" />
+
+      <label for="pitch">Pitch:</label>
+
+      <input name="pitch" type="range" min="0" max="2" step="0.1" />
+      <textarea name="text">Hello! I love JavaScript 👍</textarea>
+      <button id="stop">Stop!</button>
+      <button id="speak">Speak</button>
+    </div>
+
+    <script>
+      /**
+        1.SpeechSynthesisUtterance接口
+        本接口用于设置阅读器阅读的配置参数，包括语言，阅读速度，语调等，实例化SpeechSynthesisUtterance后，可以通过为其属性赋值来完成参数配置。
+        2.SpeechSynthesis接口
+        本接口用于控制阅读器行为，包括获取浏览器支持的朗读语言，文本朗读，暂停，停止等，接口属性中定义有paused,speaking等只读属性来表明当前的状态。
+       */
+      const msg = new SpeechSynthesisUtterance();
+      let voices = [];
+      const voicesDropdown = document.querySelector('[name="voice"]');
+      const options = document.querySelectorAll(
+        '[type="range"], [name="text"]'
+      );
+      const speakButton = document.querySelector("#speak");
+      const stopButton = document.querySelector("#stop");
+      msg.text = options[2].value =
+        "我们走着走着花就开了 在清风秋月里 望眼着生活";
+
+      //取得speechSynthesis对象，并取得浏览器支持的朗读语言，将所有支持的选项动态添加至下拉列表
+      function populateVoices() {
+        console.log("voiceschanged");
+        voices = speechSynthesis.getVoices();
+        for (let i = 0; i < voices.length; i++) {
+          console.log(voices[i]);
+          let option = document.createElement("option");
+          option.textContent = `${voices[i].name}(${voices[i].lang})`;
+          if (voices[i].default) option.textContent += " -- DEFAULT";
+          option.setAttribute("data-lang", voices[i].lang);
+          option.setAttribute("data-name", voices[i].name);
+          voicesDropdown.appendChild(option);
+        }
+        // voicesDropdown.innerHTML = voices
+        //   .map(
+        //     voice =>
+        //       `<option value="${voice.name}">${voice.name} (${voice.lang})</option>`
+        //   )
+        //   .join("");
+      }
+      speechSynthesis.addEventListener("voiceschanged", populateVoices);
+
+      //点击speak按钮后朗读
+      // function speak() {
+      //   console.log(voicesDropdown.value);
+      //   speechSynthesis.speak(msg);
+      // }
+      //点击stop按钮停止朗读
+      // function stopSpeak() {
+      //   speechSynthesis.cancel();
+      // }
+      function toggleSpeak(start = true) {
+        speechSynthesis.cancel();
+        if (start) speechSynthesis.speak(msg);
+      }
+      speakButton.addEventListener("click", toggleSpeak);
+      stopButton.addEventListener("click", () => toggleSpeak(false));
+
+      //参数配置可更改
+      function setVoice() {
+        msg.voice = voices.find(
+          v => v.name == this.value || this.value.includes(v.name)
+        );
+        toggleSpeak();
+        console.log(this.value, msg.voice);
+      }
+      function optionChange() {
+        console.log(this.name, this.value);
+        msg[this.name] = this.value;
+        toggleSpeak();
+      }
+      voicesDropdown.addEventListener("change", setVoice);
+      options.forEach(e => e.addEventListener("change", optionChange));
+    </script>
+  </body>
+</html>
