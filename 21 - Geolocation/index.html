@@ -100,7 +100,8 @@
       const arrow = document.querySelector(".arrow");
 
       if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
+        // navigator.geolocation.getCurrentPosition(
+        navigator.geolocation.watchPosition(
           data => {
             console.log(data);
             var coords = data.coords;

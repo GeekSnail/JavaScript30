@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Understanding JavaScript's Capture</title>
+  </head>
+  <body class="bod">
+    <div class="one">
+      <div class="two">
+        <div class="three"></div>
+      </div>
+    </div>
+
+    <style>
+      html {
+        box-sizing: border-box;
+      }
+
+      *,
+      *:before,
+      *:after {
+        box-sizing: inherit;
+      }
+
+      div {
+        width: 100%;
+        padding: 100px;
+      }
+
+      .one {
+        background: thistle;
+      }
+
+      .two {
+        background: mistyrose;
+      }
+
+      .three {
+        background: coral;
+      }
+    </style>
+
+    <button>button</button>
+    <script>
+      //dom事件捕获，事件冒泡，单次触发
+      const divs = document.querySelectorAll("div");
+      const one = document.querySelector(".one");
+      const two = document.querySelector(".two");
+      const three = document.querySelector(".three");
+
+      function logText(e) {
+        console.log(this.classList.value);
+      }
+      function logText1(e) {
+        console.log("1", this.classList.value);
+      }
+      function logText2(e) {
+        console.log("2", this.classList.value);
+        e.stopPropagation();
+      }
+      function logText3(e) {
+        console.log("3", this.classList.value);
+      }
+
+      // divs.forEach(div =>
+      //   div.addEventListener("click", logText, {
+      //     once: true,
+      //     capture: false // ture 捕获阶段 由外到内
+      //   })
+      // );
+      one.addEventListener("click", logText1, { capture: true });
+      two.addEventListener("click", logText2, { capture: true });
+      three.addEventListener("click", logText3, { capture: true });
+    </script>
+  </body>
+</html>
