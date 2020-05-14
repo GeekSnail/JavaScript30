@@ -35,34 +35,36 @@
     </div>
 
     <script>
+      //当鼠标拖动画面移动时，条幅同步向水平方向移动。
       const slider = document.querySelector(".items");
-      let isDown = false;
-      let startX;
-      let scrollLeft;
-
+      // 在条幅容器上监听鼠标按下事件
+      let isMouseDown = false; // 是否按下
+      let startX; // 按下位置的x坐标
+      let scrollLeft; // 记录视口相对于items最左侧已经滚动的距离
+      //鼠标按下
       slider.addEventListener("mousedown", e => {
-        isDown = true;
+        isMouseDown = true;
         slider.classList.add("active");
-        startX = e.pageX - slider.offsetLeft;
+        console.log(e.pageX, slider.offsetLeft, e.offsetX);
+        startX = e.pageX - slider.offsetLeft; //记录鼠标按下时的相对位置
         scrollLeft = slider.scrollLeft;
       });
-
+      //鼠标弹起
+      slider.addEventListener("mouseup", e => {
+        isMouseDown = false;
+        slider.classList.remove("active");
+      });
+      //鼠标移动
+      slider.addEventListener("mousemove", e => {
+        if (!isMouseDown) return;
+        e.preventDefault();
+        const endX = e.pageX - slider.offsetLeft;
+        const walk = (endX - startX) * 3;
+        slider.scrollLeft = scrollLeft - walk;
+      });
       slider.addEventListener("mouseleave", () => {
         isDown = false;
         slider.classList.remove("active");
-      });
-
-      slider.addEventListener("mouseup", () => {
-        isDown = false;
-        slider.classList.remove("active");
-      });
-
-      slider.addEventListener("mousemove", e => {
-        if (!isDown) return; // stop the fn from running
-        e.preventDefault();
-        const x = e.pageX - slider.offsetLeft;
-        const walk = (x - startX) * 3;
-        slider.scrollLeft = scrollLeft - walk;
       });
     </script>
   </body>
