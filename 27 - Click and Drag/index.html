@@ -42,29 +42,30 @@
       let startX; // 按下位置的x坐标
       let scrollLeft; // 记录视口相对于items最左侧已经滚动的距离
       //鼠标按下
-      slider.addEventListener("mousedown", e => {
+      slider.addEventListener("mousedown", (e) => {
         isMouseDown = true;
         slider.classList.add("active");
         console.log(e.pageX, slider.offsetLeft, e.offsetX);
-        startX = e.pageX - slider.offsetLeft; //记录鼠标按下时的相对位置
+        startX = e.pageX - slider.offsetLeft; //记录鼠标按下时的相对位置x
         scrollLeft = slider.scrollLeft;
       });
-      //鼠标弹起
-      slider.addEventListener("mouseup", e => {
+      //鼠标移动
+      slider.addEventListener("mousemove", (e) => {
+        if (!isMouseDown) return;
+        e.preventDefault();
+        const endX = e.pageX - slider.offsetLeft; //记录鼠标移动时的相对位置x
+        const walk = (endX - startX) * 3; //*3增大灵敏?
+        //鼠标往右滑+，滚动条往左-，鼠标往左滑-，滚动条往右+
+        slider.scrollLeft = scrollLeft - walk;
+      });
+      //鼠标弹起或离开监听容器区域
+      slider.addEventListener("mouseup", (e) => {
         isMouseDown = false;
         slider.classList.remove("active");
       });
-      //鼠标移动
-      slider.addEventListener("mousemove", e => {
-        if (!isMouseDown) return;
-        e.preventDefault();
-        const endX = e.pageX - slider.offsetLeft;
-        const walk = (endX - startX) * 3;
-        slider.scrollLeft = scrollLeft - walk;
-      });
       slider.addEventListener("mouseleave", () => {
-        isDown = false;
-        slider.classList.remove("active");
+        isMouseDown = false;
+        slider.classList.remove("active"); //移动到外边才松开，不触发mouseup
       });
     </script>
   </body>

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Video Speed Scrubber</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="wrapper">
+      <video
+        class="flex"
+        width="765"
+        height="430"
+        src="https://www.w3school.com.cn/example/html5/mov_bbb.mp4"
+        autoplay
+        loop
+        controls
+      ></video>
+      <div class="speed">
+        <div class="speed-bar">0.16×</div>
+      </div>
+    </div>
+
+    <script>
+      const video = document.querySelector("video.flex");
+      const speed = document.querySelector(".speed");
+      const speedBar = document.querySelector(".speed-bar");
+      function changeSpeed(e) {
+        let y = e.offsetY;
+        let percentage = e.offsetY / speed.offsetHeight;
+        const rates = [0.2, 2];
+        const playbackRate = percentage * (rates[1] - rates[0]) + rates[0];
+        speedBar.style.height = Math.round(percentage * 100) + "%";
+        speedBar.textContent = playbackRate.toFixed(2) + "x";
+        video.playbackRate = playbackRate;
+      }
+
+      speed.addEventListener("mousemove", changeSpeed);
+    </script>
+  </body>
+</html>
