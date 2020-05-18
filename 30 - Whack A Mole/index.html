@@ -1,42 +1,90 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Whack A Mole!</title>
-  <link href='https://fonts.googleapis.com/css?family=Amatic+SC:400,700' rel='stylesheet' type='text/css'>
-  <link rel="stylesheet" href="style.css">
-</head>
-<body>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Whack A Mole!</title>
+    <link
+      href="https://fonts.googleapis.com/css?family=Amatic+SC:400,700"
+      rel="stylesheet"
+      type="text/css"
+    />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <h1>Whack-a-mole! <span class="score">0</span></h1>
+    <button onClick="startGame()">Start!</button>
 
-  <h1>Whack-a-mole! <span class="score">0</span></h1>
-  <button onClick="startGame()">Start!</button>
+    <div class="game">
+      <div class="hole hole1">
+        <div class="mole"></div>
+      </div>
+      <div class="hole hole2">
+        <div class="mole"></div>
+      </div>
+      <div class="hole hole3">
+        <div class="mole"></div>
+      </div>
+      <div class="hole hole4">
+        <div class="mole"></div>
+      </div>
+      <div class="hole hole5">
+        <div class="mole"></div>
+      </div>
+      <div class="hole hole6">
+        <div class="mole"></div>
+      </div>
+    </div>
 
-  <div class="game">
-    <div class="hole hole1">
-      <div class="mole"></div>
-    </div>
-    <div class="hole hole2">
-      <div class="mole"></div>
-    </div>
-    <div class="hole hole3">
-      <div class="mole"></div>
-    </div>
-    <div class="hole hole4">
-      <div class="mole"></div>
-    </div>
-    <div class="hole hole5">
-      <div class="mole"></div>
-    </div>
-    <div class="hole hole6">
-      <div class="mole"></div>
-    </div>
-  </div>
+    <script>
+      /**
+       * 有六個洞會隨機出現地鼠，對著地鼠點擊即可得一分，遊戲時間10秒鐘。
+       */
+      const holes = document.querySelectorAll(".hole");
+      const scoreBoard = document.querySelector(".score");
+      const moles = document.querySelectorAll(".mole");
 
-<script>
-  const holes = document.querySelectorAll('.hole');
-  const scoreBoard = document.querySelector('.score');
-  const moles = document.querySelectorAll('.mole');
-
-</script>
-</body>
+      //設定地鼠出現的時間
+      function randomTime(min, max) {
+        return Math.round(Math.random() * (max - min) + min);
+      }
+      //設定地鼠隨機出現的位置
+      let lastHole;
+      function randomHole(holes) {
+        const i = Math.floor(Math.random() * holes.length);
+        if (lastHole == holes[i]) return randomHole(holes); //為避免有兩次重複出現,重新執行選擇
+        lastHole = holes[i];
+        return lastHole;
+      }
+      /** 讓地鼠隨機出現
+       *  .hole.up .mole { top: 0; }
+       */
+      let timeup = false; //时间结束
+      function peep() {
+        const time = randomTime(20, 1000);
+        const hole = randomHole(holes);
+        hole.classList.add("up");
+        setTimeout(() => {
+          hole.classList.remove("up");
+          if (!timeup) peep();
+        }, time);
+      }
+      //點擊地鼠下去并得分
+      let score;
+      function bonk(e) {
+        if (!e.isTrusted) return;
+        score++;
+        this.parentNode.classList.remove("up");
+        scoreBoard.textContent = score;
+      }
+      moles.forEach((m) => m.addEventListener("click", bonk));
+      // 开始游戏
+      function startGame() {
+        timeup = false;
+        score = 0;
+        scoreBoard.textContent = 0;
+        peep();
+        setTimeout(() => (timeup = true), 10000);
+      }
+    </script>
+  </body>
 </html>
