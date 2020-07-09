@@ -95,14 +95,16 @@
       }
       /*Compass: https://thenounproject.com/search/?q=compass&i=592352*/
     </style>
+    <script src="https://cdn.bootcdn.net/ajax/libs/vConsole/3.3.4/vconsole.min.js"></script>
     <script>
+      var vConsole = new VConsole();
       const speed = document.querySelector(".speed-value");
       const arrow = document.querySelector(".arrow");
 
       if (navigator.geolocation) {
         // navigator.geolocation.getCurrentPosition(
         navigator.geolocation.watchPosition(
-          data => {
+          (data) => {
             console.log(data);
             var coords = data.coords;
             console.log("Your current position is:");
@@ -114,7 +116,9 @@
             arrow.style.transform = `rotate(${coords.heading}deg)`;
           },
           console.error,
-          {}
+          {
+            enableHighAccuracy: true,
+          }
         );
       } else console.log("Your broswer does not support the Geolocation API");
     </script>
